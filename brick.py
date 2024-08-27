@@ -10,10 +10,10 @@ class Brick:
         # Draw the outline (the edge of the brick)
         pygame.draw.rect(screen, BLACK, self.rect, BRICK_EDGE_THICKNESS)
 
-def create_bricks():
-    bricks = []
-    for row in range(BRICK_ROWS):
-        for col in range(BRICK_COLS):
-            brick = Brick(col * BRICK_WIDTH, row * BRICK_HEIGHT)
-            bricks.append(brick)
-    return bricks
+    def create_bricks():
+        bricks = []
+        for row in range(BRICK_ROWS):
+            for col in range(BRICK_COLS):
+                brick = Brick(col * BRICK_WIDTH, row * BRICK_HEIGHT)
+                bricks.append(brick)
+        return bricks
