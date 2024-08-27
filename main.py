@@ -50,7 +50,7 @@ def main():
     clock = pygame.time.Clock()
     paddle = Paddle()
     ball = Ball()
-    bricks = create_bricks()
+    bricks = brick.create_bricks()
     powerups = []
     running = True
     game_over = False
@@ -139,7 +139,7 @@ def main():
         if game_over:
             paddle = Paddle()
             ball = Ball()
-            bricks = create_bricks()
+            bricks = brick.create_bricks()
             powerups = []
             game_over = False
             won = False
