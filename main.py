@@ -1,8 +1,48 @@
+import pygame
+import sys
+import random
 from paddle import *
 from ball import *
 from brick import *
 from power_up import *
 from screen import *
+
+# Initialize Pygame
+pygame.init()
+
+# Screen setup
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("Not Breakout")
+S = Screen(screen)
+
+# Variables to track player stats
+score = 0
+lives = 3
+level = 1
+
+# Function to draw the scoreboard
+def draw_scoreboard(screen, score, lives, level):
+    font = pygame.font.Font(None, 36)
+    score_text = font.render(f"Score: {score}", True, WHITE)
+    # lives_text = font.render(f"Lives: {lives}", True, WHITE)
+    level_text = font.render(f"Level: {level}", True, WHITE)
+
+    # Position the scoreboard
+    screen.blit(score_text, (10, 10))  # Score at top-left
+    screen.blit(level_text, (SCREEN_WIDTH - 150, 10))  # Lives at top-right
+    # screen.blit(level_text, (SCREEN_WIDTH // 2 - 50, 10))  # Level in the center
+
+# Main game loop
+# main.py
+import pygame
+import sys
+import random
+from brick import Brick
+from paddle import Paddle
+from ball import Ball
+from power_up import PowerUp
+from screen import Screen
+from setting import *
 
 pygame.init()
 
@@ -10,16 +50,16 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Not Breakout")
 S = Screen(screen)
 
-# Main game loop
 def main():
+    global score, lives, level
     clock = pygame.time.Clock()
     paddle = Paddle()
     ball = Ball()
-    bricks = Brick.create_bricks()
+    brick_margin = 5  # Margin between bricks
+    bricks = Brick.create_bricks(level, SCREEN_WIDTH, SCREEN_HEIGHT, brick_margin)  # Pass screen dimensions and margin
     powerups = []
     running = True
     game_over = False
-    won = False
     powerup_effect_time = 0
 
     while running:
@@ -51,6 +91,7 @@ def main():
                 if ball.rect.colliderect(brick.rect):
                     bricks.remove(brick)
                     ball.y_speed = -ball.y_speed
+                    score += 100  # Increment score when a brick is destroyed
 
                     # Randomly drop a power-up
                     if random.random() < POWERUP_DROP_CHANCE:
@@ -62,13 +103,19 @@ def main():
             # Ball out of bounds (lose condition)
             if ball.rect.bottom >= SCREEN_HEIGHT:
                 game_over = True
-                S.show_retry_screen("Game Over")
+                # Display the current score on game over screen
+                S.show_retry_screen("Game Over!", score)
+                # Reset score, lives, and level
+                score = 0
+                lives = 3
+                level = 1
 
-            # Win condition
+            # Win condition - clear all bricks
             if not bricks:
-                won = True
-                game_over = True
-                S.show_retry_screen("You Win!")
+                level += 1  # Advance to the next level
+                bricks = Brick.create_bricks(level, SCREEN_WIDTH, SCREEN_HEIGHT, brick_margin)  # Create new bricks for the next level
+                ball.reset()  # Reset ball position and speed
+                paddle.reset()  # Reset paddle size if it was changed by power-ups
 
             # Power-up movement and collision with paddle
             for powerup in powerups[:]:
@@ -96,6 +143,9 @@ def main():
             for powerup in powerups:
                 powerup.draw(screen)
 
+            # Draw the scoreboard
+            draw_scoreboard(screen, score, lives, level)
+
         # Update display
         pygame.display.flip()
         clock.tick(FPS)
@@ -104,11 +154,22 @@ def main():
         if game_over:
             paddle = Paddle()
             ball = Ball()
-            bricks = Brick.create_bricks()
+            bricks = Brick.create_bricks(level, SCREEN_WIDTH, SCREEN_HEIGHT, brick_margin)  # Pass the initial level
             powerups = []
             game_over = False
-            won = False
+            # Reset game variables
+            score = 0
+            lives = 3
+            level = 1
 
 if __name__ == "__main__":
     S.start_screen()
     main()
+
+
+
+
+
+
+
+
