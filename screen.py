@@ -92,11 +92,22 @@ class Screen:
         self.screen.fill(BLACK)
         font = pygame.font.SysFont(None, 36)
         title = font.render("Top 10 High Scores", True, WHITE)
-        self.screen.blit(title, (SCREEN_WIDTH // 2 - title.get_width() // 2, SCREEN_HEIGHT // 4))
+        self.screen.blit(title, (SCREEN_WIDTH // 2 - title.get_width() // 2, SCREEN_HEIGHT // 8))
+
+        # Set starting positions
+        y_offset = SCREEN_HEIGHT // 5
+        x_name_pos = SCREEN_WIDTH // 4  # X position for names
+        x_score_pos = SCREEN_WIDTH // 4 * 3  # X position for scores
 
         for i, (name, score) in enumerate(top_scores):
-            score_text = font.render(f"{i + 1}. {name} - {score}", True, WHITE)
-            self.screen.blit(score_text, (SCREEN_WIDTH // 2 - score_text.get_width() // 2, SCREEN_HEIGHT // 3 + (i + 1) * 30))
+            rank_text = font.render(f"{i + 1}.", True, WHITE)
+            name_text = font.render(name, True, WHITE)
+            score_text = font.render(str(score), True, WHITE)
+
+            # Display rank, name, and score in separate columns
+            self.screen.blit(rank_text, (x_name_pos - 50, y_offset + i * 40))  # Rank
+            self.screen.blit(name_text, (x_name_pos, y_offset + i * 40))  # Name
+            self.screen.blit(score_text, (x_score_pos - score_text.get_width(), y_offset + i * 40))  # Right-align the score
 
         pygame.display.flip()
 

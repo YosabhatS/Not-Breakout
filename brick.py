@@ -1,36 +1,34 @@
 from setting import *
+import pygame
 
 class Brick:
-    def __init__(self, x, y, width, height, brick_type='normal'):
+    def __init__(self, x, y, width, height, color=PINK):  # Pass the color you want for the overlay
         self.rect = pygame.Rect(x, y, width, height)
-        self.brick_type = brick_type
+        self.image = pygame.image.load('assets/brick.png')  # Load the brick image
+        self.image = pygame.transform.scale(self.image, (width, height))  # Scale the image to fit the brick size
+        
+        # Create a surface for the color overlay
+        self.overlay = pygame.Surface((width, height), pygame.SRCALPHA)  # Create a transparent surface
+        self.overlay.fill((*color, 128))  # Set color with 50% opacity (128 is 50% in the alpha channel)
 
     def draw(self, screen):
-        pygame.draw.rect(screen, WHITE, self.rect)
-        pygame.draw.rect(screen, BLACK, self.rect, BRICK_EDGE_THICKNESS)
+        # Draw the brick image on the screen
+        screen.blit(self.image, (self.rect.x, self.rect.y))
+        # Draw the 50% opacity color overlay on top of the brick image
+        screen.blit(self.overlay, (self.rect.x, self.rect.y))
 
     @staticmethod
-    def get_brick_width(screen_width, brick_margin, num_columns):
-        # Define SCOREBOARD_MARGIN here, or import it from setting
-        SCOREBOARD_MARGIN = 50  # Adjust if needed
-
-        # Adjust brick width to fit the screen width
-        brick_width = (screen_width - (num_columns + 1) * brick_margin) / num_columns
-        return brick_width
-
-    @staticmethod
-    def create_bricks(level, screen_width, screen_height, brick_margin):
-        num_columns = BRICK_COLS + level - 1  # Increase columns with each level
-        num_rows = BRICK_ROWS
+    def create_bricks(level, screen_width, screen_height, brick_margin, brick_color=PINK):
         bricks = []
-        brick_width = Brick.get_brick_width(screen_width, brick_margin, num_columns)
-        brick_height = BRICK_HEIGHT  # Keep the fixed height
+        num_cols = 5 + level  # Increase the number of columns with each level
+        brick_width = (screen_width - (num_cols + 1) * brick_margin) // num_cols
+        brick_height = 30
+        num_rows = 5  # You can adjust this based on the difficulty/level
 
         for row in range(num_rows):
-            for col in range(num_columns):
-                brick_x = col * (brick_width + brick_margin) + brick_margin
-                brick_y = 50 + row * (brick_height + brick_margin) + brick_margin  # Include margin for the scoreboard
-                brick = Brick(brick_x, brick_y, brick_width, brick_height)
+            for col in range(num_cols):
+                x = col * (brick_width + brick_margin) + brick_margin
+                y = row * (brick_height + brick_margin) + brick_margin + 50  # Adding 50 pixels margin from the top
+                brick = Brick(x, y, brick_width, brick_height, brick_color)
                 bricks.append(brick)
-
         return bricks

@@ -54,9 +54,12 @@ def main():
     global score, lives, level
     clock = pygame.time.Clock()
     paddle = Paddle()
-    ball = Ball()
+
+    # Start with one ball
+    balls = [Ball()]
+
     brick_margin = 5  # Margin between bricks
-    bricks = Brick.create_bricks(level, SCREEN_WIDTH, SCREEN_HEIGHT, brick_margin)  # Pass screen dimensions and margin
+    bricks = Brick.create_bricks(level, SCREEN_WIDTH, SCREEN_HEIGHT, brick_margin)
     powerups = []
     running = True
     game_over = False
@@ -79,43 +82,45 @@ def main():
             if keys[pygame.K_RIGHT]:
                 paddle.move('right')
 
-            # Ball movement
-            ball.move()
+            # Move and draw all balls
+            for ball in balls[:]:
+                ball.move()
 
-            # Ball and paddle collision
-            if ball.rect.colliderect(paddle.rect):
-                ball.y_speed = -ball.y_speed
-
-            # Ball and brick collision
-            for brick in bricks[:]:
-                if ball.rect.colliderect(brick.rect):
-                    bricks.remove(brick)
+                # Ball and paddle collision
+                if ball.rect.colliderect(paddle.rect):
                     ball.y_speed = -ball.y_speed
-                    score += 100  # Increment score when a brick is destroyed
 
-                    # Randomly drop a power-up
-                    if random.random() < POWERUP_DROP_CHANCE:
-                        power_type = random.choice(['enlarge', 'slow'])
-                        powerup = PowerUp(brick.rect.x, brick.rect.y, power_type)
-                        powerups.append(powerup)
-                    break
+                # Ball and brick collision
+                for brick in bricks[:]:
+                    if ball.rect.colliderect(brick.rect):
+                        bricks.remove(brick)
+                        ball.y_speed = -ball.y_speed
+                        score += 100  # Increment score when a brick is destroyed
 
-            # Ball out of bounds (lose condition)
-            if ball.rect.bottom >= SCREEN_HEIGHT:
-                game_over = True
-                # Display the current score on game over screen
-                S.show_retry_screen("Game Over!", score)
-                # Reset score, lives, and level
-                score = 0
-                lives = 3
-                level = 1
+                        # Randomly drop a power-up
+                        if random.random() < POWERUP_DROP_CHANCE:
+                            power_type = random.choice(['enlarge', 'slow', 'multiply'])  # Add multiply to the random choice
+                            powerup = PowerUp(brick.rect.x, brick.rect.y, power_type)
+                            powerups.append(powerup)
+                        break
+
+                # Ball out of bounds (lose condition)
+                if ball.rect.bottom >= SCREEN_HEIGHT:
+                    balls.remove(ball)  # Remove the ball from the game
+                    if not balls:
+                        game_over = True
+                        S.show_retry_screen("Game Over!", score)
+                        score = 0
+                        lives = 3
+                        level = 1
 
             # Win condition - clear all bricks
             if not bricks:
-                level += 1  # Advance to the next level
-                bricks = Brick.create_bricks(level, SCREEN_WIDTH, SCREEN_HEIGHT, brick_margin)  # Create new bricks for the next level
-                ball.reset()  # Reset ball position and speed
-                paddle.reset()  # Reset paddle size if it was changed by power-ups
+                level += 1
+                bricks = Brick.create_bricks(level, SCREEN_WIDTH, SCREEN_HEIGHT, brick_margin)
+                for ball in balls:
+                    ball.reset()
+                paddle.reset()
 
             # Power-up movement and collision with paddle
             for powerup in powerups[:]:
@@ -125,19 +130,28 @@ def main():
                         paddle.enlarge()
                         powerup_effect_time = pygame.time.get_ticks()
                     elif powerup.power_type == 'slow':
-                        ball.slow_down()
+                        for ball in balls:
+                            ball.slow_down()
                         powerup_effect_time = pygame.time.get_ticks()
+                    elif powerup.power_type == 'multiply':
+                        # Generate a new ball
+                        new_ball = Ball()
+                        new_ball.x_speed = random.choice([-4, 4])  # Random initial direction
+                        new_ball.y_speed = -BALL_SPEED
+                        balls.append(new_ball)
                     powerups.remove(powerup)
 
             # Reset power-up effects after a few seconds
             if powerup_effect_time and pygame.time.get_ticks() - powerup_effect_time > POWERUP_EFFECT_TIME:
                 paddle.reset_size()
-                ball.reset_speed()
+                for ball in balls:
+                    ball.reset_speed()
                 powerup_effect_time = 0
 
             # Drawing
             paddle.draw(screen)
-            ball.draw(screen)
+            for ball in balls:
+                ball.draw(screen)
             for brick in bricks:
                 brick.draw(screen)
             for powerup in powerups:
@@ -153,14 +167,14 @@ def main():
         # Reset the game if player presses space to retry
         if game_over:
             paddle = Paddle()
-            ball = Ball()
-            bricks = Brick.create_bricks(level, SCREEN_WIDTH, SCREEN_HEIGHT, brick_margin)  # Pass the initial level
+            balls = [Ball()]  # Reset to one ball
+            bricks = Brick.create_bricks(level, SCREEN_WIDTH, SCREEN_HEIGHT, brick_margin)
             powerups = []
             game_over = False
-            # Reset game variables
             score = 0
             lives = 3
             level = 1
+
 
 if __name__ == "__main__":
     S.start_screen()
