@@ -40,3 +40,4 @@ class Brick:
                 brick = Brick(x, y, brick_width, brick_height, color)
                 bricks.append(brick)
         return bricks
+    

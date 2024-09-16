@@ -1,11 +1,12 @@
 import pygame
 import sys
 import random
-from paddle import *
-from ball import *
-from brick import *
-from power_up import *
-from screen import *
+from paddle import Paddle
+from ball import Ball
+from brick import Brick
+from power_up import PowerUp
+from screen import Screen
+from setting import *
 
 # Initialize Pygame
 pygame.init()
@@ -14,6 +15,14 @@ pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Not Breakout")
 S = Screen(screen)
+
+# Initialize sound effects
+pygame.mixer.init()
+hit_sound = pygame.mixer.Sound('assets/hit.wav')
+break_sound = pygame.mixer.Sound('assets/break.wav')
+
+hit_sound.set_volume(0.1)
+break_sound.set_volume(0.1)
 
 # Variables to track player stats
 score = 0
@@ -29,27 +38,10 @@ def draw_scoreboard(screen, score, lives, level):
 
     # Position the scoreboard
     screen.blit(score_text, (10, 10))  # Score at top-left
-    screen.blit(level_text, (SCREEN_WIDTH - 150, 10))  # Lives at top-right
+    screen.blit(level_text, (SCREEN_WIDTH - 150, 10))  # Level at top-right
     # screen.blit(level_text, (SCREEN_WIDTH // 2 - 50, 10))  # Level in the center
 
 # Main game loop
-# main.py
-import pygame
-import sys
-import random
-from brick import Brick
-from paddle import Paddle
-from ball import Ball
-from power_up import PowerUp
-from screen import Screen
-from setting import *
-
-pygame.init()
-
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Not Breakout")
-S = Screen(screen)
-
 def main():
     global score, lives, level
     clock = pygame.time.Clock()
@@ -89,6 +81,7 @@ def main():
                 # Ball and paddle collision
                 if ball.rect.colliderect(paddle.rect):
                     ball.reflect_from_paddle(paddle)  # Reflect based on paddle collision
+                    hit_sound.play()  # Play hit sound on paddle collision
 
                 # Ball and brick collision
                 for brick in bricks[:]:
@@ -96,6 +89,7 @@ def main():
                         bricks.remove(brick)
                         ball.y_speed = -ball.y_speed  # Reflect ball on brick collision
                         score += 100  # Increment score when a brick is destroyed
+                        break_sound.play()  # Play break sound on brick collision
 
                         # Randomly drop a power-up
                         if random.random() < POWERUP_DROP_CHANCE:
@@ -175,15 +169,6 @@ def main():
             lives = 3
             level = 1
 
-
 if __name__ == "__main__":
     S.start_screen()
     main()
-
-
-
-
-
-
-
-
