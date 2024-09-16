@@ -84,22 +84,22 @@ def main():
 
             # Move and draw all balls
             for ball in balls[:]:
-                ball.move()
+                ball.move(paddle)  # Pass the paddle to the ball move function
 
                 # Ball and paddle collision
                 if ball.rect.colliderect(paddle.rect):
-                    ball.y_speed = -ball.y_speed
+                    ball.reflect_from_paddle(paddle)  # Reflect based on paddle collision
 
                 # Ball and brick collision
                 for brick in bricks[:]:
                     if ball.rect.colliderect(brick.rect):
                         bricks.remove(brick)
-                        ball.y_speed = -ball.y_speed
+                        ball.y_speed = -ball.y_speed  # Reflect ball on brick collision
                         score += 100  # Increment score when a brick is destroyed
 
                         # Randomly drop a power-up
                         if random.random() < POWERUP_DROP_CHANCE:
-                            power_type = random.choice(['enlarge', 'slow', 'multiply'])  # Add multiply to the random choice
+                            power_type = random.choice(['enlarge', 'slow', 'multiply'])
                             powerup = PowerUp(brick.rect.x, brick.rect.y, power_type)
                             powerups.append(powerup)
                         break
