@@ -88,7 +88,7 @@ def main():
                     if ball.rect.colliderect(brick.rect):
                         bricks.remove(brick)
                         ball.y_speed = -ball.y_speed  # Reflect ball on brick collision
-                        score += 100  # Increment score when a brick is destroyed
+                        score += 500  # Increment score when a brick is destroyed
                         break_sound.play()  # Play break sound on brick collision
 
                         # Randomly drop a power-up
@@ -104,9 +104,6 @@ def main():
                     if not balls:
                         game_over = True
                         S.show_retry_screen("Game Over!", score)
-                        score = 0
-                        lives = 3
-                        level = 1
 
             # Win condition - clear all bricks
             if not bricks:
@@ -158,16 +155,14 @@ def main():
         pygame.display.flip()
         clock.tick(FPS)
 
-        # Reset the game if player presses space to retry
+        # If game is over, wait for space to return to start screen
         if game_over:
-            paddle = Paddle()
-            balls = [Ball()]  # Reset to one ball
-            bricks = Brick.create_bricks(level, SCREEN_WIDTH, SCREEN_HEIGHT, brick_margin)
-            powerups = []
-            game_over = False
             score = 0
-            lives = 3
-            level = 1
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_SPACE]:
+                S.start_screen()  # Clears the screen and shows the main screen
+                main()  # Restart the main game loop after the player presses enter
+
 
 if __name__ == "__main__":
     S.start_screen()

@@ -32,7 +32,7 @@ class Screen:
         self.save_score(player_name, score)
 
         # Show high scores
-        self.show_high_scores()
+        self.show_high_scores(score)
 
         self.wait("retry")
 
@@ -74,7 +74,7 @@ class Screen:
             writer.writerow([player_name, score])
 
     # Display top 10 high scores
-    def show_high_scores(self):
+    def show_high_scores(self, current_score=None):
         filename = 'high_scores.csv'
         scores = []
 
@@ -94,26 +94,39 @@ class Screen:
         title = font.render("Top 10 High Scores", True, WHITE)
         self.screen.blit(title, (SCREEN_WIDTH // 2 - title.get_width() // 2, SCREEN_HEIGHT // 8))
 
-        # Set starting positions
+        # Set starting positions for high scores
         y_offset = SCREEN_HEIGHT // 5
         x_name_pos = SCREEN_WIDTH // 4  # X position for names
         x_score_pos = SCREEN_WIDTH // 4 * 3  # X position for scores
 
         for i, (name, score) in enumerate(top_scores):
-            rank_text = font.render(f"{i + 1}.", True, WHITE)
-            name_text = font.render(name, True, WHITE)
-            score_text = font.render(str(score), True, WHITE)
+            # If the current score matches this score, highlight it in yellow
+            if score == current_score:
+                text_color = (255, 255, 0)  # Yellow color
+            else:
+                text_color = WHITE  # Default white color
+
+            rank_text = font.render(f"{i + 1}.", True, text_color)
+            name_text = font.render(name, True, text_color)
+            score_text = font.render(str(score), True, text_color)
 
             # Display rank, name, and score in separate columns
             self.screen.blit(rank_text, (x_name_pos - 50, y_offset + i * 40))  # Rank
             self.screen.blit(name_text, (x_name_pos, y_offset + i * 40))  # Name
             self.screen.blit(score_text, (x_score_pos - score_text.get_width(), y_offset + i * 40))  # Right-align the score
 
+        # Render the current player's score in yellow at the bottom of the screen if not in top 10
+        if current_score is not None and current_score not in [score for _, score in top_scores]:
+            current_score_text = font.render(f"Your Score: {current_score}", True, (255, 255, 0))  # Yellow text
+            self.screen.blit(current_score_text, (SCREEN_WIDTH // 2 - current_score_text.get_width() // 2, SCREEN_HEIGHT - 60))
+
         pygame.display.flip()
 
-        self.wait("retry")
+
 
     def start_screen(self):
+        self.screen.fill(BLACK)  # Clear any previous content
+
         game_name_text = pygame.font.SysFont(None, 60).render("NOT BREAKOUT", True, WHITE)
         play_text = pygame.font.SysFont(None, 36).render("Press ENTER to Start", True, WHITE)
 
@@ -122,6 +135,7 @@ class Screen:
 
         pygame.display.flip()
         self.wait("start")
+
 
     def wait(self, type):
         waiting = True
