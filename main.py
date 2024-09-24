@@ -26,14 +26,13 @@ break_sound.set_volume(0.1)
 
 # Variables to track player stats
 score = 0
-lives = 3
+
 level = 1
 
 # Function to draw the scoreboard
-def draw_scoreboard(screen, score, lives, level):
+def draw_scoreboard(screen, score, level):
     font = pygame.font.Font(None, 36)
     score_text = font.render(f"Score: {score}", True, WHITE)
-    # lives_text = font.render(f"Lives: {lives}", True, WHITE)
     level_text = font.render(f"Level: {level}", True, WHITE)
 
     # Position the scoreboard
@@ -43,7 +42,7 @@ def draw_scoreboard(screen, score, lives, level):
 
 # Main game loop
 def main():
-    global score, lives, level
+    global score, level
     clock = pygame.time.Clock()
     paddle = Paddle()
 
@@ -88,7 +87,7 @@ def main():
                     if ball.rect.colliderect(brick.rect):
                         bricks.remove(brick)
                         ball.y_speed = -ball.y_speed  # Reflect ball on brick collision
-                        score += 500  # Increment score when a brick is destroyed
+                        score += 100  # Increment score when a brick is destroyed
                         break_sound.play()  # Play break sound on brick collision
 
                         # Randomly drop a power-up
@@ -149,7 +148,7 @@ def main():
                 powerup.draw(screen)
 
             # Draw the scoreboard
-            draw_scoreboard(screen, score, lives, level)
+            draw_scoreboard(screen, score, level)
 
         # Update display
         pygame.display.flip()

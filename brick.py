@@ -2,7 +2,7 @@ import pygame
 from setting import *
 
 class Brick:
-    def __init__(self, x, y, width, height, color=PINK):  # Pass the color you want for the overlay
+    def __init__(self, x, y, width, height, color):  # Pass the color you want for the overlay
         self.rect = pygame.Rect(x, y, width, height)
         self.image = pygame.image.load('assets/brick.png')  # Load the brick image
         self.image = pygame.transform.scale(self.image, (width, height))  # Scale the image to fit the brick size
